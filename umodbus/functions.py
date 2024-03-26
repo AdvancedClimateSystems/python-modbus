@@ -111,10 +111,10 @@ def pdu_to_function_code_or_raise_error(resp_pdu):
     :return: Subclass of :class:`ModbusFunction` matching the response.
     :raises ModbusError: When response contains error code.
     """
-    function_code = struct.unpack('>B', resp_pdu[0:1])[0]
+    function_code = resp_pdu[0]
 
     if function_code not in function_code_to_function_map.keys():
-        error_code = struct.unpack('>B', resp_pdu[1:2])[0]
+        error_code = resp_pdu[1]
         raise error_code_to_exception_map[error_code]
 
     return function_code
@@ -316,12 +316,7 @@ class ReadCoils(ModbusFunction):
                 reduce(lambda a, b: (a << 1) + b, list(reversed(byte)))
 
         log.debug('Reduced single bit data to {0}.'.format(bytes_))
-        # The first 2 B's of the format encode the function code (1 byte) and
-        # the length (1 byte) of the following byte series. Followed by # a B
-        # for every byte in the series of bytes. 3 lead to the format '>BBB'
-        # and 257 lead to the format '>BBBB'.
-        fmt = '>BB' + self.format_character * len(bytes_)
-        return struct.pack(fmt, self.function_code, len(bytes_), *bytes_)
+        return bytes([self.function_code, len(bytes_), *bytes_])
 
     @classmethod
     def create_from_response_pdu(cls, resp_pdu, req_pdu):
@@ -335,10 +330,8 @@ class ReadCoils(ModbusFunction):
         """
         read_coils = cls()
         read_coils.quantity = struct.unpack('>H', req_pdu[-2:])[0]
-        byte_count = struct.unpack('>B', resp_pdu[1:2])[0]
-
-        fmt = '>' + ('B' * byte_count)
-        bytes_ = struct.unpack(fmt, resp_pdu[2:])
+        byte_count = resp_pdu[1]
+        bytes_ = resp_pdu[2:]
 
         data = list()
 
@@ -524,12 +517,7 @@ class ReadDiscreteInputs(ModbusFunction):
                 reduce(lambda a, b: (a << 1) + b, list(reversed(byte)))
 
         log.debug('Reduced single bit data to {0}.'.format(bytes_))
-        # The first 2 B's of the format encode the function code (1 byte) and
-        # the length (1 byte) of the following byte series. Followed by # a B
-        # for every byte in the series of bytes. 3 lead to the format '>BBB'
-        # and 257 lead to the format '>BBBB'.
-        fmt = '>BB' + self.format_character * len(bytes_)
-        return struct.pack(fmt, self.function_code, len(bytes_), *bytes_)
+        return bytes([self.function_code, len(bytes_), *bytes_])
 
     @classmethod
     def create_from_response_pdu(cls, resp_pdu, req_pdu):
@@ -543,10 +531,8 @@ class ReadDiscreteInputs(ModbusFunction):
         """
         read_discrete_inputs = cls()
         read_discrete_inputs.quantity = struct.unpack('>H', req_pdu[-2:])[0]
-        byte_count = struct.unpack('>B', resp_pdu[1:2])[0]
-
-        fmt = '>' + ('B' * byte_count)
-        bytes_ = struct.unpack(fmt, resp_pdu[2:])
+        byte_count = resp_pdu[1]
+        bytes_ = resp_pdu[2:]
 
         data = list()
 

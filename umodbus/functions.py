@@ -75,7 +75,7 @@ from umodbus import conf, log
 from umodbus.exceptions import (error_code_to_exception_map,
                                 IllegalDataValueError, IllegalFunctionError,
                                 IllegalDataAddressError)
-from umodbus.utils import memoize, get_function_code_from_request_pdu
+from umodbus.utils import get_function_code_from_request_pdu
 
 # Function related to data access.
 READ_COILS = 1
@@ -140,7 +140,6 @@ def create_function_from_response_pdu(resp_pdu, req_pdu=None):
     return function.create_from_response_pdu(resp_pdu)
 
 
-@memoize
 def create_function_from_request_pdu(pdu):
     """ Return function instance, based on request PDU.
 

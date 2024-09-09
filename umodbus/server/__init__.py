@@ -63,6 +63,8 @@ class AbstractRequestHandler(BaseRequestHandler):
         request_pdu = self.get_request_pdu(request_adu)
 
         response_pdu = self.execute_route(meta_data, request_pdu)
+        if response_pdu is False:
+            return False
         response_adu = self.create_response_adu(meta_data, response_pdu)
 
         return response_adu
@@ -80,6 +82,9 @@ class AbstractRequestHandler(BaseRequestHandler):
             function = create_function_from_request_pdu(request_pdu)
             results =\
                 function.execute(meta_data['unit_id'], self.server.route_map)
+            # Result is False if request SlaveId do not match modbus server SlaveId
+            if results is False:
+                return False
 
             try:
                 # ReadFunction's use results of callbacks to build response

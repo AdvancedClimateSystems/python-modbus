@@ -81,6 +81,8 @@ class AbstractSerialServer(object):
         request_pdu = self.get_request_pdu(request_adu)
 
         response_pdu = self.execute_route(meta_data, request_pdu)
+        if response_pdu is False:
+            return False
         response_adu = self.create_response_adu(meta_data, response_pdu)
 
         return response_adu
@@ -98,7 +100,8 @@ class AbstractSerialServer(object):
             function = create_function_from_request_pdu(request_pdu)
             results =\
                 function.execute(meta_data['unit_id'], self.route_map)
-
+            if results is False:
+                return False
             try:
                 # ReadFunction's use results of callbacks to build response
                 # PDU...

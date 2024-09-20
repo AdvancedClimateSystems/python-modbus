@@ -55,7 +55,8 @@ class RTUServer(AbstractSerialServer):
             raise ValueError
 
         response_adu = self.process(request_adu)
-        self.respond(response_adu)
+        if response_adu:
+            self.respond(response_adu)
 
     def process(self, request_adu):
         """ Process request ADU and return response.
